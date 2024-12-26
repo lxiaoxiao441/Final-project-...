@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户主页 - 优品商城</title>
+    <style>
+        .user-avatar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-profile {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-item label {
+            width: 80px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .info-item input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .info-item span {
+            flex: 1;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button-group button {
+            padding: 8px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #2196F3;
+            color: white;
+            display: none;
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-avatar" id="userAvatar" onclick="handleAvatarClick()">
+        <img src="../images/7f4528c627f449aef40aedaf09f546f.jpg" alt="用户头像" id="smallAvatar">
+    </div>
+
+    <div class="user-profile" id="userProfile" style="display: none;">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="../images/0cab6b496b7f12fefb6b84e4fed0baa.jpg" alt="用户头像" id="largeAvatar">
+            </div>
+            <h2 id="username">未登录</h2>
+        </div>
+        <div class="profile-info">
+            <div class="info-item">
+                <label>用户名：</label>
+                <span id="profileUsername">未设置</span>
+                <input type="text" id="inputUsername" class="edit-input">
+            </div>
+            <div class="info-item">
+                <label>电话：</label>
+                <span id="profilePhone">未设置</span>
+                <input type="tel" id="inputPhone" class="edit-input">
+            </div>
+            <div class="info-item">
+                <label>地址：</label>
+                <span id="profileAddress">未设置</span>
+                <input type="text" id="inputAddress" class="edit-input">
+            </div>
+            <div class="info-item">
+                <label>爱好：</label>
+                <span id="profileHobby">未设置</span>
+                <input type="text" id="inputHobby" class="edit-input">
+            </div>
+            <div class="button-group">
+                <button class="edit-btn" onclick="editProfile()">编辑资料</button>
+                <button class="save-btn" onclick="saveProfile()">保存</button>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            checkLoginStatus();
+        };
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (currentUser) {
+                const userData = JSON.parse(localStorage.getItem('userData'));
+                const user = userData.users.find(u => u.username === currentUser);
+                
+                if (user) {
+                    document.getElementById('username').textContent = user.username;
+                    document.getElementById('profileUsername').textContent = user.username;
+                    document.getElementById('profilePhone').textContent = user.phone || '未设置';
+                    document.getElementById('profileAddress').textContent = user.address || '未设置';
+                    document.getElementById('profileHobby').textContent = user.hobby || '未设置';
+                    
+                    // 设置登录后的头像
+                    document.getElementById('smallAvatar').src = '../images/0cab6b496b7f12fefb6b84e4fed0baa.jpg';
+                    document.getElementById('largeAvatar').src = '../images/0cab6b496b7f12fefb6b84e4fed0baa.jpg';
+                    
+                    userProfile.style.display = 'block';
+                }
+            } else {
+                // 未登录状态
+                document.getElementById('smallAvatar').src = '../images/7f4528c627f449aef40aedaf09f546f.jpg';
+                userProfile.style.display = 'none';
+            }
+        }
+
+        function handleAvatarClick() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'reg.html';
+            } else {
+                const userProfile = document.getElementById('userProfile');
+                userProfile.style.display = userProfile.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function editProfile() {
+            const spans = document.querySelectorAll('.info-item span');
+            const inputs = document.querySelectorAll('.info-item input');
+            const editBtn = document.querySelector('.edit-btn');
+            const saveBtn = document.querySelector('.save-btn');
+
+            spans.forEach(span => span.style.display = 'none');
+            inputs.forEach(input => {
+                input.style.display = 'block';
+                input.value = input.previousElementSibling.textContent;
+            });
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+        }
+
+        function saveProfile() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) return;
+
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            const userIndex = userData.users.findIndex(u => u.username === currentUser);
+
+            if (userIndex !== -1) {
+                userData.users[userIndex].phone = document.getElementById('inputPhone').value;
+                userData.users[userIndex].address = document.getElementById('inputAddress').value;
+                userData.users[userIndex].hobby = document.getElementById('inputHobby').value;
+
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                // 更新显示
+                document.getElementById('profilePhone').textContent = userData.users[userIndex].phone;
+                document.getElementById('profileAddress').textContent = userData.users[userIndex].address;
+                document.getElementById('profileHobby').textContent = userData.users[userIndex].hobby;
+
+                // 恢复显示状态
+                const spans = document.querySelectorAll('.info-item span');
+                const inputs = document.querySelectorAll('.info-item input');
+                const editBtn = document.querySelector('.edit-btn');
+                const saveBtn = document.querySelector('.save-btn');
+
+                spans.forEach(span => span.style.display = 'block');
+                inputs.forEach(input => input.style.display = 'none');
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+
+                alert('保存成功！');
+            }
+        }
+
+        function logout() {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            // 清除当前用户的购物车显示
+            localStorage.removeItem(`cartItems_${currentUser}`);
+            
+            // 只移除当前用户的登录状态，保留用户数据
+            localStorage.removeItem('currentUser');
+            
+            // 清除当前会话的显示
+            document.getElementById('username').textContent = '未登录';
+            document.getElementById('profileUsername').textContent = '未设置';
+            document.getElementById('profilePhone').textContent = '未设置';
+            document.getElementById('profileAddress').textContent = '未设置';
+            document.getElementById('profileHobby').textContent = '未设置';
+            
+            // 重置头像为默认图片
+            document.getElementById('smallAvatar').src = '../images/7f4528c627f449aef40aedaf09f546f.jpg';
+            document.getElementById('largeAvatar').src = '../images/7f4528c627f449aef40aedaf09f546f.jpg';
+            
+            // 隐藏用户信息面板
+            document.getElementById('userProfile').style.display = 'none';
+            
+            // 跳转到首页
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

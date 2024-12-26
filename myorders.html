@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单 - 优品商城</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 15px;
+        }
+
+        .order-list {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .order-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+
+        .order-products {
+            margin: 15px 0;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .product-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .order-footer {
+            text-align: right;
+            margin-top: 15px;
+        }
+
+        .total-amount {
+            color: #f60;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">返回首页</a>
+        <div class="order-list" id="order-list">
+            <!-- 订单列表将通过JavaScript动态加载 -->
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时执行
+        window.onload = function() {
+            checkLoginStatus();
+            loadOrders();
+        };
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录！');
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // 加载订单历史
+        function loadOrders() {
+            if (!checkLoginStatus()) return;
+            
+            const currentUser = localStorage.getItem('currentUser');
+            const orderList = document.getElementById('order-list');
+            const orders = JSON.parse(localStorage.getItem('orderHistory')) || [];
+            
+            // 只显示当前用户的订单
+            const userOrders = orders.filter(order => order.userId === currentUser);
+            
+            if (userOrders.length === 0) {
+                orderList.innerHTML = '<div class="order-item">暂无订单记录</div>';
+                return;
+            }
+            
+            orderList.innerHTML = userOrders.map(order => `
+                <div class="order-item">
+                    <div class="order-header">
+                        <div>
+                            <span>订单号：${order.orderId}</span>
+                            <span>下单时间：${new Date(order.orderDate).toLocaleString()}</span>
+                        </div>
+                        <div>状态：${order.status}</div>
+                    </div>
+                    <div class="order-products">
+                        ${order.items.map(item => `
+                            <div class="product-item">
+                                <img src="${item.image}" alt="${item.name}" class="product-img">
+                                <div class="product-info">
+                                    <h3>${item.name}</h3>
+                                    <p>单价：¥${item.price.toFixed(2)}</p>
+                                    <p>数量：${item.quantity}</p>
+                                    <p>小计：¥${(item.price * item.quantity).toFixed(2)}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-footer">
+                        <div class="address-info">
+                            <h4>收货���息</h4>
+                            <p>收货人：${order.address.name}</p>
+                            <p>联系电话：${order.address.phone}</p>
+                            <p>收货地址：${order.address.address}</p>
+                        </div>
+                        <div class="order-total">
+                            <p>订单总额：<span class="total-amount">¥${order.totalAmount}</span></p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

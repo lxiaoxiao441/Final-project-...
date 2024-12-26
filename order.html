@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单确认 - 优品商城</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 15px;
+        }
+
+        .order-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        .address-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .address-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .address-item.selected {
+            border-color: #f60;
+            background: #fff9f6;
+        }
+
+        .address-item:hover {
+            border-color: #f60;
+        }
+
+        .new-address {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+            border: 2px dashed #ddd;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-items th,
+        .order-items td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+        }
+
+        .order-summary {
+            text-align: right;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .total-amount {
+            color: #f60;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: #f60;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            float: right;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="order-section">
+            <h2 class="section-title">收货地址</h2>
+            <div class="address-list">
+                <div class="new-address" onclick="showAddressModal()">
+                    + 添加新地址
+                </div>
+            </div>
+        </div>
+
+        <div class="order-section">
+            <h2 class="section-title">订单明细</h2>
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>商品图片</th>
+                        <th>商品名称</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                    </tr>
+                </thead>
+                <tbody id="order-items">
+                    <!-- 订单项目将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+            <div class="order-summary">
+                <p>共 <span id="total-quantity">0</span> 件商品</p>
+                <p>订单总额：¥<span id="total-amount">0.00</span></p>
+                <button onclick="submitOrder()" class="submit-btn">立即支付</button>
+            </div>
+        </div>
+
+        <!-- 添加地址模态框 -->
+        <div id="addressModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddressModal()">&times;</span>
+                <h2>添加收货地址</h2>
+                <div class="form-group">
+                    <label for="name">收货人姓名</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">联系电话</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">详细地址</label>
+                    <input type="text" id="address" required>
+                </div>
+                <button class="submit-btn" onclick="saveAddress()">保存地址</button>
+            </div>
+        </div>
+
+        <script>
+            // 从localStorage获取订单数据
+            const orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
+            let addresses = JSON.parse(localStorage.getItem('addresses')) || [];
+            let selectedAddress = null;
+
+            // 加载订单数据
+            function loadOrderItems() {
+                const tbody = document.getElementById('order-items');
+                const totalQuantityElem = document.getElementById('total-quantity');
+                const totalAmountElem = document.getElementById('total-amount');
+                
+                let totalQuantity = 0;
+                let totalAmount = 0;
+                
+                tbody.innerHTML = orderItems.map(item => {
+                    const subtotal = item.price * item.quantity;
+                    totalQuantity += item.quantity;
+                    totalAmount += subtotal;
+                    
+                    return `
+                        <tr>
+                            <td><img src="${item.image}" alt="${item.name}" class="product-img"></td>
+                            <td>${item.name}</td>
+                            <td>¥${item.price.toFixed(2)}</td>
+                            <td>${item.quantity}</td>
+                            <td>¥${subtotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                totalQuantityElem.textContent = totalQuantity;
+                totalAmountElem.textContent = totalAmount.toFixed(2);
+            }
+
+            // 加载地址列表
+            function loadAddresses() {
+                const addressList = document.querySelector('.address-list');
+                const newAddressBtn = addressList.querySelector('.new-address');
+                
+                // 清除现有地址（保留添加按钮）
+                while (addressList.firstChild !== newAddressBtn) {
+                    addressList.removeChild(addressList.firstChild);
+                }
+                
+                // 添加地址列表
+                addresses.forEach((addr, index) => {
+                    const div = document.createElement('div');
+                    div.className = `address-item ${addr === selectedAddress ? 'selected' : ''}`;
+                    div.onclick = () => selectAddress(index);
+                    div.innerHTML = `
+                        <p><strong>${addr.name}</strong> ${addr.phone}</p>
+                        <p>${addr.address}</p>
+                    `;
+                    addressList.insertBefore(div, newAddressBtn);
+                });
+            }
+
+            // 选择地址
+            function selectAddress(index) {
+                selectedAddress = addresses[index];
+                loadAddresses();
+            }
+
+            // 显示地址模态框
+            function showAddressModal() {
+                document.getElementById('addressModal').style.display = 'block';
+            }
+
+            // 关闭地址模态框
+            function closeAddressModal() {
+                document.getElementById('addressModal').style.display = 'none';
+            }
+
+            // 保存新地址
+            function saveAddress() {
+                const name = document.getElementById('name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const address = document.getElementById('address').value.trim();
+                
+                if (!name || !phone || !address) {
+                    alert('请填写完整的地址信息');
+                    return;
+                }
+                
+                const newAddress = { name, phone, address };
+                addresses.push(newAddress);
+                localStorage.setItem('addresses', JSON.stringify(addresses));
+                
+                selectedAddress = newAddress;
+                loadAddresses();
+                closeAddressModal();
+            }
+
+            // 提交订单
+            function submitOrder() {
+                if (!selectedAddress) {
+                    alert('请选择收货地址');
+                    return;
+                }
+
+                const currentUser = localStorage.getItem('currentUser');
+                if (!currentUser) {
+                    alert('请先登录！');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 从localStorage获取订单项目和总金额
+                const orderItems = JSON.parse(localStorage.getItem('orderItems'));
+                const totalAmount = parseFloat(document.getElementById('total-amount').textContent);
+
+                const orderData = {
+                    orderId: generateOrderId(),
+                    userId: currentUser,
+                    orderDate: new Date().toISOString(),
+                    items: orderItems,
+                    totalAmount: totalAmount,
+                    address: selectedAddress,
+                    status: '待支付'
+                };
+                
+                try {
+                    localStorage.setItem('currentOrder', JSON.stringify(orderData));
+                    window.location.href = 'pay.html';
+                } catch (error) {
+                    console.error('保存订单数据失败:', error);
+                    alert('订单保存失败，请重试');
+                }
+            }
+
+            // 生成订单ID的函数
+            function generateOrderId() {
+                return 'ORDER' + Date.now() + Math.floor(Math.random() * 1000);
+            }
+
+            // 初始化页面
+            loadOrderItems();
+            loadAddresses();
+        </script>
+    </div>
+</body>
+</html>

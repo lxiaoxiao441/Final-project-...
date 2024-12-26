@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 - 优品商城</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+        }
+
+        .register-form {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f60;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .register-btn:hover {
+            background: #ff8533;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            color: #f60;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form class="register-form" id="registerForm" onsubmit="return validateForm(event)">
+            <h2 class="form-title">用户注册</h2>
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username">
+                <div class="error-message" id="username-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password">
+                <div class="error-message" id="password-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">确认密码</label>
+                <input type="password" id="confirm-password" name="confirm-password">
+                <div class="error-message" id="confirm-password-error"></div>
+            </div>
+            <button type="submit" class="register-btn">注册</button>
+            <div class="login-link">
+                已有账号？<a href="login.html">立即登录</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function validateForm(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            const usernameError = document.getElementById('username-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmPasswordError = document.getElementById('confirm-password-error');
+            
+            // 重置错误信息
+            usernameError.style.display = 'none';
+            passwordError.style.display = 'none';
+            confirmPasswordError.style.display = 'none';
+            
+            let isValid = true;
+
+            // 验证用户名
+            if (!username) {
+                usernameError.textContent = '用户名不能为空';
+                usernameError.style.display = 'block';
+                isValid = false;
+            }
+
+            // 验证密码
+            if (!password) {
+                passwordError.textContent = '密码不能为空';
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+
+            // 验证确认密码
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = '请确认密码';
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                confirmPasswordError.textContent = '两次输入的密码不一致';
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // 保存用户信息
+                registerUser(username, password);
+            }
+
+            return false;
+        }
+
+        function registerUser(username, password) {
+            // 从 localStorage 获取现有用户数据
+            let userData = {
+                "users": [],
+                "lastId": 0
+            };
+            
+            try {
+                const existingData = localStorage.getItem('userData');
+                if (existingData) {
+                    userData = JSON.parse(existingData);
+                }
+            } catch (e) {
+                console.error('Error loading user data:', e);
+            }
+
+            // 检查用户名是否已存在
+            const existingUser = userData.users.find(u => u.username === username);
+            if (existingUser) {
+                const usernameError = document.getElementById('username-error');
+                usernameError.textContent = '用户名已存在';
+                usernameError.style.display = 'block';
+                return;
+            }
+
+            // 创建新用户
+            const newUser = {
+                id: userData.lastId + 1,
+                username: username,
+                password: password,
+                email: "",
+                registerDate: new Date().toISOString().split('T')[0]
+            };
+
+            // 更新用户数据
+            userData.users.push(newUser);
+            userData.lastId = newUser.id;
+
+            // 保存到 localStorage
+            localStorage.setItem('userData', JSON.stringify(userData));
+
+            alert('注册成功！');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

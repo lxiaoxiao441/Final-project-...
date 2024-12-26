@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优品商城 - 首页</title>
+    <style>
+        /* 重置默认样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 50px;
+            padding: 10px 0;
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ff6600;
+            font-family: "华文琥珀", "STHupo", "Microsoft YaHei", sans-serif;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        
+        /* 添加底部装饰线 */
+        .logo-text span {
+            position: relative;
+        }
+
+        .logo-text span::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent,
+                #ff9999,
+                #ff9999,
+                transparent
+            );
+        }
+
+        /* 导航菜单 */
+        .main-nav {
+            display: flex;
+            list-style: none;
+        }
+
+        .main-nav li {
+            position: relative;
+        }
+
+        .main-nav a {
+            display: block;
+            padding: 20px;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .main-nav a:hover {
+            color: #f60;
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 150px;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        /* 商品卡片样式 */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .price {
+            color: #f60;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #f60;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #ff8533;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background: #333;
+            color: #fff;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+        }
+
+        /* 添加用头像样式 */
+        .nav-user {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            padding: 10px 0;
+        }
+
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin-left: 20px;
+        }
+
+        .nav-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 修改导航栏样式 */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- 头部区域 -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="../images/7f4528c627f449aef40aedaf09f546f.jpg" alt="优品商城">
+                <div class="logo-text">优品商城</div>
+            </div>
+            <nav>
+                <ul class="main-nav">
+                    <li><a href="index.html">首页</a></li>
+                    <li class="dropdown">
+                        <a href="#">商品分类 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="list.html?category=罗小黑战记">罗小黑战记</a></li>
+                            <li><a href="list.html?category=未定事件簿">未定事件簿</a></li>
+                            <li><a href="list.html?category=恋与深空">恋与深空</a></li>
+                            <li><a href="list.html?category=吉伊卡哇">吉伊卡哇</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="cart.html">购物车</a></li>
+                    <li><a href="myorders.html">我的订单</a></li>
+                </ul>
+                <div class="nav-user">
+                    <div id="loginRegister" style="display: none;">
+                        <a href="login.html">登录</a>
+                        <a href="reg.html">注册</a>
+                    </div>
+                    <div class="nav-avatar" onclick="handleAvatarClick()">
+                        <img src="../images/504d2d36eed02001eacbe153271600e.jpg" alt="用户头像" id="navAvatar">
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 轮播图区域 -->
+    <section class="slider">
+        <!-- 轮播图内容将通过JavaScript��现 -->
+    </section>
+
+    <!-- 最新动态 -->
+    <section class="news">
+        <div class="container">
+            <h2>最新动态</h2>
+            <div class="news-list">
+                <div class="news-item">
+                    <h3>618购物节即将开始</h3>
+                    <p>6月1日-6月18日，全场商品低至5折！</p>
+                </div>
+                <!-- 更多新闻项目 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 商品展示区域 -->
+    <section class="products">
+        <div class="container">
+            <h2>热门商品</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="../images/微信图片_20241225221620.jpg" alt="商品1">
+                    <h3>未定事件簿 明信片</h3>
+                    <p class="price">¥39.9</p>
+                    <a href="detail.html?id=1" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_20241225221621.jpg" alt="商品2">
+                    <h3>未定事件簿 周边笔记本</h3>
+                    <p class="price">¥49.9</p>
+                    <a href="detail.html?id=2" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_20241225221622.jpg" alt="商品3">
+                    <h3>吉伊卡哇 恶魔小玩偶</h3>
+                    <p class="price">¥89.9</p>
+                    <a href="detail.html?id=3" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_20241225221623.jpg" alt="商品4">
+                    <h3>吉伊卡哇 小型玩偶</h3>
+                    <p class="price">¥129.9</p>
+                    <a href="detail.html?id=4" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_20241225221624.jpg" alt="商品5">
+                    <h3>吉伊卡哇 睡觉玩偶</h3>
+                    <p class="price">¥79.9</p>
+                    <a href="detail.html?id=5" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216201.jpg" alt="商品6">
+                    <h3>罗小黑战记 星星眼挂坠</h3>
+                    <p class="price">¥29.9</p>
+                    <a href="detail.html?id=6" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216211.jpg" alt="商品7">
+                    <h3>未定事件簿 证件照亚克力挂件套组</h3>
+                    <p class="price">¥19.9</p>
+                    <a href="detail.html?id=7" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216212.jpg" alt="商品8">
+                    <h3>未定事件簿 青涩年华留念卡套组</h3>
+                    <p class="price">¥59.9</p>
+                    <a href="detail.html?id=8" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216213.jpg" alt="商品9">
+                    <h3>未定事件簿 少年如你系列徽章</h3>
+                    <p class="price">¥15.9</p>
+                    <a href="detail.html?id=9" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216221.jpg" alt="商品10">
+                    <h3> 恋与深空 祁煜2024生日拍立得组 </h3>
+                    <p class="price">¥45.9</p>
+                    <a href="detail.html?id=10" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216222.jpg" alt="商品11">
+                    <h3> 恋与深空 祁煜2024生日灯光画 </h3>
+                    <p class="price">¥25.9</p>
+                    <a href="detail.html?id=11" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216223.jpg" alt="商品12">
+                    <h3>恋与深空 祁煜2024生日马口铁徽章 </h3>
+                    <p class="price">¥15.9</p>
+                    <a href="detail.html?id=12" class="btn">查看详情</a>
+                </div>
+                <div class="product-card">
+                    <img src="../images/微信图片_202412252216231.jpg" alt="商品13">
+                    <h3>吉伊卡哇 中型玩偶</h3>
+                    <p class="price">¥299.9</p>
+                    <a href="detail.html?id=13" class="btn">查看详情</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于我们</h3>
+                    <p>优品商城是您值得信赖的网上购物平台</p>
+                </div>
+                <div class="footer-section">
+                    <h3>客户服务</h3>
+                    <ul>
+                        <li><a href="#">购物指南</a></li>
+                        <li><a href="#">配送方式</a></li>
+                        <li><a href="#">支付方式</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <p>客服电话：400-123-4567</p>
+                    <p>邮箱：support@youpin.com</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 优品商城 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        window.onload = function() {
+            checkLoginStatus();
+        };
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            const navAvatar = document.getElementById('navAvatar');
+            const loginRegister = document.getElementById('loginRegister');
+            
+            if (currentUser) {
+                const userData = JSON.parse(localStorage.getItem('userData'));
+                const user = userData.users.find(u => u.username === currentUser);
+                if (user) {
+                    navAvatar.src = '../images/0cab6b496b7f12fefb6b84e4fed0baa.jpg';
+                    loginRegister.style.display = 'none';
+                }
+            } else {
+                navAvatar.src = '../images/7f4528c627f449aef40aedaf09f546f.jpg';
+                loginRegister.style.display = 'block';
+            }
+        }
+
+        function handleAvatarClick() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'reg.html';
+            } else {
+                window.location.href = 'user.html';
+            }
+        }
+    </script>
+</body>
+</html>
